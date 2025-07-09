@@ -1,3 +1,39 @@
+/*
+Script Purpose:
+    This script performs the initial Bronze Layer loading in the Data Warehouse.
+    It ingests raw data from ERP and CRM CSV files into the corresponding
+    Bronze schema tables using `LOAD DATA LOCAL INFILE`. It includes:
+
+    - Truncation of bronze tables to maintain idempotency
+    - Timed execution for performance tracking
+    - Message-based logs for monitoring progress
+
+Data Sources:
+    - CRM System: Customer Info, Product Info, Sales Details
+    - ERP System: Location, Customer, Product Category
+
+Pre-requisites:
+    - Enable LOCAL INFILE in MySQL:
+        SET GLOBAL local_infile = 1;
+
+    - File paths must be accessible by the MySQL client with proper privileges
+
+Parameters:
+    None. This script does not take any input parameters.
+
+Returns:
+    Runtime logs and duration of each individual load operation.
+
+Usage Instructions:
+    1. Open MySQL Workbench or CLI
+    2. Run:
+        SET GLOBAL local_infile = 1;
+    3. Then execute this script:
+        SOURCE path_to_script/load_bronze_layer.sql;
+
+===============================================================================
+*/
+
 SET GLOBAL local_infile = 1;
 USE datawarehouse;
 -- Set start time of full batch
