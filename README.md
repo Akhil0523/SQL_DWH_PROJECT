@@ -31,90 +31,44 @@ This warehouse follows a three-layer **Medallion Architecture**:
 
 ---
 
-## 📁 Repository Structure
-data-warehouse-project/
-│
-├── datasets/                           # Raw datasets used for the project (ERP and CRM data)
-│
-├── docs/                               # Project documentation and architecture details
-│   ├── etl.drawio                      # Draw.io file shows all different techniquies and methods of ETL
-│   ├── data_architecture.drawio        # Draw.io file shows the project's architecture
-│   ├── data_catalog.md                 # Catalog of datasets, including field descriptions and metadata
-│   ├── data_flow.drawio                # Draw.io file for the data flow diagram
-│   ├── data_models.drawio              # Draw.io file for data models (star schema)
-│   ├── naming-conventions.md           # Consistent naming guidelines for tables, columns, and files
-│
-├── scripts/                            # SQL scripts for ETL and transformations
-│   ├── bronze/                         # Scripts for extracting and loading raw data
-│   ├── silver/                         # Scripts for cleaning and transforming data
-│   ├── gold/                           # Scripts for creating analytical models
-│
-├── tests/                              # Test scripts and quality files
-│
-├── README.md                           # Project overview and instructions
-├── LICENSE                             # License information for the repository
-├── .gitignore                          # Files and directories to be ignored by Git
-└── requirements.txt                    # Dependencies and requirements for the project
+This project is structured into three main phases:
+1. Building the data warehouse
+2. Performing advanced SQL-based analysis on the prepared dataset
+3. Visualizing the analytical insights using Power BI
 
-## 🧰 Tools & Technologies Used
+PHASE 1: **BUILDING THE DATAWAREHOUSE**
 
-- **MySQL Server 8.x**  
-- **MySQL Workbench** (for schema design and query execution)  
-- **Draw.io** (for ERD and data flow diagrams)  
-- **Notion** (for documentation and project planning)  
-- **GitHub** (for version control and collaboration)
+We adopted a data warehouse approach, as our data was structured and our primary goal was to build a robust foundation for reporting and business intelligence.Datawarehouse is basically a subject oriented, integrated, time variant and non-volatile cllection of data in support of management's decision making process.
+![https://acuto.io/blog/data-warehouse-architecture-types/](documents/Datawarehouse_architecture.png)
 
----
+We used the Medallion Architecture to structure our project’s data pipeline.
+![https://www.oreilly.com/library/view/delta-lake-up/9781098139711/ch01.html](documents/Medallion_architecture.png)
 
-## 🧪 Sample Queries & Analytics
+STEP 1: We created 3 different schemas(namely, bronze, silver and gold).
 
-```sql
--- Total sales by product category
-SELECT c.category_name, SUM(f.sales_amount) AS total_sales
-FROM fact_sales f
-JOIN dim_product p ON f.product_id = p.product_id
-JOIN dim_category c ON p.category_id = c.category_id
-GROUP BY c.category_name
-ORDER BY total_sales DESC;
+STEP 2: Create DDL scripts for all CSV files in the CRM and ERP Systems in the bronze schema.
 
- Business Insights Generated
-   -Top-performing products
-   -Customer retention trends
-   -Sales analysis by month and region
-   -Conversion rates from CRM leads to ERP sales
+STEP 3: Load data into the tables of bronze schema. We wanted to do bulk inserts inside a store procedure but MySQL doesn't actually supports bulk insertion inside a stored procedure to avoid SQL injection, so we shifted to running the script instead to do the desired work.
 
-✅ How to Run This Project
-  -Install MySQL Server & Workbench
-  -Clone the repository:
-    git clone https://github.com/yourusername/mysql-data-warehouse.git
-    cd mysql-data-warehouse
-  -Import the CSVs from /datasets into Bronze tables using:
-    LOAD DATA INFILE 'path_to_file.csv' 
-    INTO TABLE bronze_erp 
-    FIELDS TERMINATED BY ',' 
-    ENCLOSED BY '"' 
-    LINES TERMINATED BY '\n' 
-    IGNORE 1 ROWS;
-  -Run scripts in the following order:
-    bronze/*.sql
-    silver/*.sql
-    gold/*.sql
-  -Test your queries using SQL from gold/analytics.sql.
+STEP 4: In order to identify bottlenecks and optimize performance, we declared required variables to track duration of each ETL step.
 
-🧾 Requirements
-  MySQL Server 8.x
-  MySQL Workbench
-  CSV dataset files
-  Draw.io (for opening .drawio diagrams)
+STEP 5: We now moved to silver schema and created table accordingly with the same structure like that in the bronze schema.
 
-📘 Documentation
-  Available in the docs/ folder:
-  data_architecture.drawio – Project architecture
-  data_models.drawio – Star schema ERD
-  data_flow.drawio – Data flow pipeline
-  data_catalog.md – Field definitions and metadata
-  naming-conventions.md – Standards for table/column names
+STEP 6: Here, we added an extra metadata column called dwh_create_date in order to have an eye on when was the current data loaded.
 
+STEP 7: Before moving tothe gold layer, we need to first check the quality of our data in our silver layer like 
+1. Check for null values.
+2. Check for unwanted spaces in string values.
+3. Check for consistency of values in low cardinality columns,etc
+
+STEP 8: In the gold layer, we modelled our data according to the star schema.
+
+STEP 9: Perform quality checks on the gold layer data, since NULLS often come after joining tables, etc.
+
+PHASE 2: **Performing advanced SQL-based analysis on the prepared dataset**
+
+
+   
 📫 Reach me on-
       LinkedIn:https://www.linkedin.com/in/akhileshdwivediworks/
 
